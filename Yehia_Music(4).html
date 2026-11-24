@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#111111">
+<title>يحيى مويزك | Yehia Music</title>
+<style>
+:root{color-scheme:dark;--red:#ef233c;--bg:#090909;--panel:#171717;--muted:#aaa}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(160deg,#22070b,#090909 48%,#171717);color:#fff;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
+header{padding:30px 18px 18px;text-align:center}header h1{margin:0;font-size:clamp(30px,8vw,48px);letter-spacing:.3px}header h1 span{color:var(--red)}header p{color:#ccc;margin:8px 0 0}
+main{width:min(720px,92%);margin:0 auto 40px}.panel{background:#171717eF;border:1px solid #343434;border-radius:20px;padding:18px;margin:14px 0;box-shadow:0 12px 35px #0006}
+h2{font-size:19px;margin:0 0 12px}.row{display:flex;gap:9px;flex-wrap:wrap}input{flex:1;min-width:180px;background:#090909;border:1px solid #444;border-radius:12px;padding:14px;color:white;font-size:16px;direction:ltr}
+button{border:0;border-radius:12px;padding:13px 17px;background:var(--red);color:white;font-weight:700;font-size:15px;cursor:pointer}button.secondary{background:#303030;border:1px solid #555}
+small,.hint{color:var(--muted);line-height:1.7}.player{width:100%;aspect-ratio:16/9;background:#000;border-radius:14px;overflow:hidden;display:grid;place-items:center;color:#aaa;text-align:center}.player iframe{width:100%;height:100%;border:0}
+.quick{display:flex;flex-wrap:wrap;gap:8px}.quick button{background:#292929;border:1px solid #484848}
+#status{min-height:24px;color:#ff9eaa;margin-top:9px}.footer{text-align:center;color:#888;font-size:12px;padding:10px}
+a{color:#ff7b89}
+</style>
+</head>
+<body>
+<header><h1>يحيى <span>مويزك</span></h1><p>موسيقاك المصرية والعربية في مكان واحد 🎵</p></header>
+<main>
+<section class="panel">
+<h2>شغّل أغنيتك</h2>
+<p class="hint">الصق رابط فيديو YouTube أو معرّف الفيديو، وسيظهر المشغّل هنا إذا كان الفيديو يسمح بالتضمين.</p>
+<div class="row"><input id="video" placeholder="https://www.youtube.com/watch?v=..." aria-label="رابط يوتيوب أو معرّف الفيديو"><button id="play">تشغيل</button></div>
+<div id="status" role="status"></div>
+<div class="player" id="player">المشغّل هيظهر هنا بعد إضافة رابط أغنية</div>
+</section>
+<section class="panel">
+<h2>ابحث عن أغنية</h2>
+<p class="hint">اكتب اسم الأغنية أو المطرب. البحث يفتح نتائج YouTube الرسمية؛ اختَر فيديو ثم انسخ رابطه والصقه في المشغّل بالأعلى.</p>
+<div class="row"><input id="query" placeholder="مثال: محكمة - مهرجانات" aria-label="اسم الأغنية"><button id="search">بحث</button></div>
+</section>
+<section class="panel">
+<h2>اختيارات سريعة</h2>
+<div class="quick">
+<button data-q="مهرجانات مصرية">مهرجانات</button><button data-q="أغاني مصرية">أغاني مصرية</button><button data-q="عمرو دياب">عمرو دياب</button><button data-q="أحمد سعد">أحمد سعد</button><button data-q="عبد الحليم حافظ">زمن الفن الجميل</button>
+</div>
+</section>
+<div class="footer">Yehia Music • مشغّل شخصي غير تابع ليوتيوب</div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+function getId(raw){
+ raw=raw.trim();
+ if(/^[\w-]{11}$/.test(raw)) return raw;
+ try{
+  const u=new URL(raw);
+  if(u.hostname.endsWith('youtu.be')) return u.pathname.slice(1).split('/')[0];
+  if(u.hostname.includes('youtube.com')){
+   if(u.pathname==='/watch') return u.searchParams.get('v');
+   const m=u.pathname.match(/\/(?:embed|shorts)\/([\w-]{11})/); return m?m[1]:null;
+  }
+ }catch(e){}
+ return null;
+}
+$('play').onclick=()=>{
+ const id=getId($('video').value);
+ if(!id){$('status').textContent='الرابط أو المعرّف مش واضح. جرّب رابط YouTube كامل.';return;}
+ $('player').innerHTML='<iframe src="https://www.youtube-nocookie.com/embed/'+encodeURIComponent(id)+'?autoplay=1" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>';
+ $('status').textContent='لو ظهر خطأ، فالفيديو قد يمنع التشغيل داخل المواقع الأخرى.';
+};
+function search(){const q=$('query').value.trim();if(!q)return;$('status').textContent='اختَر فيديو من نتائج البحث ثم انسخ رابطه للمشغّل.';window.open('https://www.youtube.com/results?search_query='+encodeURIComponent(q),'_blank','noopener');}
+$('search').onclick=search;
+$('query').addEventListener('keydown',e=>{if(e.key==='Enter')search()});
+document.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{$('query').value=b.dataset.q;search()});
+</script>
+</body></html>
